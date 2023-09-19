@@ -1,12 +1,19 @@
 <template>
-    <button :class="styles.tab">
+    <div :class="styles.tab">
         <slot></slot>
-        <IconsClose width="20px" class="pl-1" />
-    </button>
+        <button>
+            <IconsClose width="20px" class="pl-1" />
+        </button>
+    </div>
 </template>
 
 <script setup>
-const styles = {
-    tab: "flex justify-end items-center focus:outline-none text-black bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-3 py-1.5 mr-2 mb-2 dark:focus:ring-yellow-900"
-}
+const props = defineProps({
+    color: { type: String, default: "bg-yellow-400 hover:bg-yellow-500" }
+})
+const styles = reactive({
+    tab: "flex justify-end items-center focus:outline-none text-black  focus:ring-4 focus:ring-yellow-300 font-medium rounded-lg text-sm px-3 py-1.5 mr-2 mb-2 dark:focus:ring-yellow-900"
+})
+
+styles.tab += ' ' + props.color
 </script>

@@ -53,8 +53,6 @@ function updateInput(event) {
             }
             emit('update:modelValue', newValue)
         } else {
-            console.log('checkbox simple', isChecked)
-
             emit('update:modelValue', isChecked ? props.trueValue : props.falseValue)
         }
     }
