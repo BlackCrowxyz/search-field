@@ -4,6 +4,7 @@
         <InputCheckbox :parent="option" :value="option.value" :modelValue="modelValue"
             @update:modelValue="e => handleCheckboxGroup(e, i, j, parent.name, option)" />
     </div>
+    <slot></slot>
 </template>
   
 <script setup>

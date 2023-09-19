@@ -1,60 +1,87 @@
-<!-- <component :is="getComponent(parent.type)" v-bind="{ parent: parent, modelValue: formData[i].value }"
-    @update:modelValue="e => onChange(e, parent.name, parent.type)">
-    <div v-if="parent?.children?.length">
-      <component v-for="(child, j) in parent.sub" :key="i + '-' + j" :is="getComponent(child.type)"
-        v-bind="{ modelValue: formData[i].sub[j].value }" @update:modelValue="e => onChange(e, child.name, child.type)">
-      </component>
-    </div>
-  </component> -->
 <template>
-  <div>
-    <template v-for="(parent, i) in formData" :key="parent.name + '-' + i">
-      <template v-if="parent.type == ('text') || parent.type == ('number') || parent.type == ('textarea')">
-        <div v-if="parent?.children?.length">
-          <template v-for="(child, j) in parent.sub" :key="i + '-' + j">
-            <template v-if="child.type == ('text') || child.type == ('number') || child.type == ('textarea')">
-              <InputField :parent="child" :modelValue="formData[i].value"
-                @update:modelValue="e => onChange(e, child.name, child.type)" />
+  <div class="py-10">
+    <UiCard>
 
-            </template>
-            <template v-else-if="child.type == ('dropdown')">
-              <InputDropdown :parent="child" :modelValue="formData[i].value"
-                @update:modelValue="e => onChange(e, child.name, child.type)" />
-            </template>
-            <template v-else-if="child.type == ('checkbox')">
-              <InputCheckbox :parent="child" :value="child.value" :modelValue="formData[i].value"
-                @update:modelValue="e => onChange(e, child.name, child.type)" />
-            </template>
-            <template v-else-if="child.type == ('checkbox-group')">
-              <InputCheckboxGroup :parent="child" :modelValue="formData[i].value" @update:modelValue="e => modelValue = e"
-                @changed="e => onChange(e, child.name, child.type)" />
-            </template>
-            <template v-else>Unknown component</template>
+      <template v-for="(parent, i) in formData" :key="parent.name + '-' + i">
+
+        <UiCard>
+          <component v-if="parent?.sub" :is="getComponent(parent.type)"
+            v-bind="{ parent: parent, modelValue: formData[i].value }"
+            @update:modelValue="e => onChange(e, parent.name, parent.type)">
+
+            <UiCard :border="true">
+              <component v-for="(child, j) in parent.sub" :key="i + '-' + j" :is="getComponent(child.type)"
+                v-bind="{ parent: child, modelValue: formData[i].sub[j].value }"
+                @update:modelValue="e => onChange(e, child.name, child.type)">
+              </component>
+            </UiCard>
+
+          </component>
+
+          <component v-else-if="!parent?.parent" :is="getComponent(parent.type)"
+            v-bind="{ parent: parent, modelValue: formData[i].value }"
+            @update:modelValue="e => onChange(e, parent.name, parent.type)">
+          </component>
+        </UiCard>
+
+        <div v-if="i+1 != formData.length && !parent?.parent" class="mt-4 border"></div>
+
+        <!-- <UiBox v-if="!parent?.parent">
+        <template v-if="parent.type == ('text') || parent.type == ('number') || parent.type == ('textarea')">
+          <InputField :parent="parent" :modelValue="formData[i].value"
+            @update:modelValue="e => onChange(e, parent.name, parent.type)" />
+        </template>
+        <template v-else-if="parent.type == ('dropdown')">
+          <InputDropdown :parent="parent" :modelValue="formData[i].value"
+            @update:modelValue="e => onChange(e, parent.name, parent.type)" />
+        </template>
+        <template v-else-if="parent.type == ('checkbox')">
+          <InputCheckbox :parent="parent" :value="parent.value" :modelValue="formData[i].value"
+            @update:modelValue="e => onChange(e, parent.name, parent.type)" />
+        </template>
+        <template v-else-if="parent.type == ('checkbox-group')">
+          <InputCheckboxGroup :parent="parent" :modelValue="formData[i].value" @update:modelValue="e => modelValue = e"
+            @changed="e => onChange(e, parent.name, parent.type)" />
+        </template>
+        <template v-else>Unknown component</template>
+      </UiBox>
+      <UiBox v-if="parent?.children?.length" inside>
+        <template v-for="(child, j) in parent.sub" :key="i + '-' + j">
+          <template v-if="child.type == ('text') || child.type == ('number') || child.type == ('textarea')">
+            <InputField :parent="child" :modelValue="formData[i].value"
+              @update:modelValue="e => onChange(e, child.name, child.type)" />
+
           </template>
-        </div>
+          <template v-else-if="child.type == ('dropdown')">
+            <InputDropdown :parent="child" :modelValue="formData[i].value"
+              @update:modelValue="e => onChange(e, child.name, child.type)" />
+          </template>
+          <template v-else-if="child.type == ('checkbox')">
+            <InputCheckbox :parent="child" :value="child.value" :modelValue="formData[i].value"
+              @update:modelValue="e => onChange(e, child.name, child.type)" />
+          </template>
+          <template v-else-if="child.type == ('checkbox-group')">
+            <InputCheckboxGroup :parent="child" :modelValue="formData[i].value" @update:modelValue="e => modelValue = e"
+              @changed="e => onChange(e, child.name, child.type)" />
+          </template>
+          <template v-else>Unknown component</template>
+        </template>
+      </UiBox> -->
       </template>
-      <template v-else-if="parent.type == ('dropdown')">
-        <InputDropdown :parent="parent" :modelValue="formData[i].value"
-          @update:modelValue="e => onChange(e, parent.name, parent.type)" />
-      </template>
-      <template v-else-if="parent.type == ('checkbox')">
-        <InputCheckbox :parent="parent" :value="parent.value" :modelValue="formData[i].value"
-          @update:modelValue="e => onChange(e, parent.name, parent.type)" />
-      </template>
-      <template v-else-if="parent.type == ('checkbox-group')">
-        <InputCheckboxGroup :parent="parent" :modelValue="formData[i].value" @update:modelValue="e => modelValue = e"
-          @changed="e => onChange(e, parent.name, parent.type)" />
-      </template>
-      <template v-else>Unknown component</template>
+    </UiCard>
+
+  </div>
+
+
+  {{ filterState }}
+  <br><br>
+  <UiFilters>
+    <template v-for="(value, name) in filterState">
+      <UiBadge @click="onClear(name)">
+        {{ name }}: ({{ value.toString() }})
+      </UiBadge>
     </template>
-  </div>
-  <div>
-    {{ filterState }}
-    <!-- <div v-for="(value, name) in filterState">
-      <div v-if="_value in value">{{ value.title }}-{{ value._value }}</div>
-      <div v-else @click="onClear(name)">{{ name }}-{{ value }}</div>
-    </div> -->
-  </div>
+  </UiFilters>
 </template>
 
 <script setup>
@@ -73,9 +100,9 @@ const getComponent = (cType) => {
     case 'dropdown':
       return InputDropdown
     case 'checkbox':
-      return InputCheckbox
     case 'checkbox-group':
-      return InputCheckboxGroup
+      return InputCheckbox
+    // return InputCheckboxGroup
   }
 }
 
@@ -116,47 +143,47 @@ const formData = ref([
     // "parent"?: string,
     // "options": [{ value: string | number, title: string | number }],
   },
-  {
-    "type": "number",
-    "name": "number1",
-    "label": "عددی",
-    // "children": ["1","2"],
-    // "parent"?: string,
-    // "options": [{ value: string | number, title: string | number }],
-  },
-  {
-    "type": "textarea",
-    "name": "textarea1",
-    "label": "textarea",
-    // "children": ["1","2"],
-    // "parent"?: string,
-    // "options": [{ value: string | number, title: string | number }],
-  },
-  {
-    "type": "dropdown",
-    "name": "dropdown1",
-    "label": "دراپ دون",
-    // "children": ["1","2"],
-    // "parent"?: string,
-    "options": [{ value: 1, title: 123 }, { value: 2, title: 2234234 }, { value: 3, title: 3546457 }],
-  },
-  {
-    "type": "checkbox",
-    "name": "checkbox1",
-    "label": "checkbox1",
-    // "children": ["1","2"],
-    // "parent"?: string,
-    // "options": [{ value: string | number, title: string | number }],
-  },
   // {
-  //   "type": "checkbox-group",
-  //   "name": "checkbox-group",
-  //   "label": "checkbox-group",
+  //   "type": "number",
+  //   "name": "number1",
+  //   "label": "عددی",
   //   // "children": ["1","2"],
   //   // "parent"?: string,
-  //   "options": [{ value: '1', title: 'one' }, { value: '2', title: 'two' }],
-  //   "value": []
+  //   // "options": [{ value: string | number, title: string | number }],
   // },
+  // {
+  //   "type": "textarea",
+  //   "name": "textarea1",
+  //   "label": "textarea",
+  //   // "children": ["1","2"],
+  //   // "parent"?: string,
+  //   // "options": [{ value: string | number, title: string | number }],
+  // },
+  // {
+  //   "type": "dropdown",
+  //   "name": "dropdown1",
+  //   "label": "دراپ دون",
+  //   // "children": ["1","2"],
+  //   // "parent"?: string,
+  //   "options": [{ value: 1, title: 123 }, { value: 2, title: 2234234 }, { value: 3, title: 3546457 }],
+  // },
+  // {
+  //   "type": "checkbox",
+  //   "name": "checkbox1",
+  //   "label": "checkbox1",
+  //   // "children": ["1","2"],
+  //   // "parent"?: string,
+  //   // "options": [{ value: string | number, title: string | number }],
+  // },
+  {
+    "type": "checkbox-group",
+    "name": "checkbox-group",
+    "label": "checkbox-group",
+    // "children": ["1","2"],
+    // "parent"?: string,
+    "options": [{ value: '1', title: 'اولین' }, { value: '2', title: 'دومین' }],
+    "value": []
+  },
 ])
 
 const router = useRouter()
@@ -200,20 +227,9 @@ function setFilterState(filterState) {
 }
 
 function onChange(e, name, type) {
-  console.log("onChange(e, name, type)", { e }, { name }, { type })
-  if (e?.target) {
-    const state = e?.target?.value
-    if (state)
-      filterState.value[name] = state
-    else {
-      delete filterState.value[name]
-    }
-  } else {
-    if (e)
-      filterState.value[name] = e
-    else
-      delete filterState.value[name]
-  }
+  // console.log("onChange(e, name, type)", { e }, { name }, { type })
+  if (e) filterState.value[name] = e
+  else delete filterState.value[name]
 
   for (let x = 0; x < formData.value.length; x++) {
     const item = formData.value[x]
@@ -224,18 +240,33 @@ function onChange(e, name, type) {
     }
   }
 
-
   setFilterState(filterState.value)
+}
 
+function clearItems(name = 'all') {
+  for (let x = 0; x < formData.value.length; x++) {
+    const item = formData.value[x]
+    if (name == 'all') {
+      formData.value[x].value = item.type == 'checkbox-group' ? [] : null;
+    }
+    else {
+      if (name == item.name) {
+        formData.value[x].value = item.type == 'checkbox-group' ? [] : null;
+        break
+      }
+    }
+  }
 }
 
 function onClear(name) {
   delete filterState.value[name]
+  clearItems(name)
   setFilterState(filterState.value)
 }
 
 function onClearAll() {
   filterState.value = []
+  clearItems()
   setFilterState(filterState.value)
 }
 
@@ -276,13 +307,15 @@ function mapObject() {
             }
           }
         }
-      } else if (item.type == 'checkbox-group') {
-        // formData.value[x] = { ...item, value: [] }
       }
+    } else if (item.type == 'checkbox-group') {
+      if (!item.value?.length)
+        item.value = []
+      formData.value[x] = item
     }
   }
 
-  // console.log(final.value)
+  console.log(formData.value)
 }
 
 mapObject()

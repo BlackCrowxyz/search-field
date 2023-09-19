@@ -1,7 +1,17 @@
 <template>
-    <input type="checkbox" :name="parent?.name || parent?.title" :checked="isChecked" :value="parent.value"
-    @change="updateInput" />
-    <label :for="parent?.name || parent?.title">{{ parent?.label || parent?.title }}</label>
+    <div v-if="!parent?.options" class="flex justify-end items-start">
+        <label :class="styles.label" :for="parent?.name || parent?.title">{{ parent?.label || parent?.title }}</label>
+        <input :class="styles.checkbox" type="checkbox" :name="parent?.name || parent?.title" :checked="isChecked"
+            :value="parent.value" @change="updateInput" />
+    </div>
+    <template v-else>
+        <label :for="parent.name">{{ parent.label }}</label>
+        <div v-for="(option, j) in parent.options" :key="option.title + '-' + j">
+            <InputCheckbox :parent="option" :value="option.value" :modelValue="parent.value"
+                @update:modelValue="e => $emit('update:modelValue', e)" />
+        </div>
+    </template>
+    <slot></slot>
 </template>
   
 <script setup>
@@ -13,7 +23,12 @@ const props = defineProps({
     falseValue: { default: false }
 });
 
-const state = ref(false)
+const groupCheckbox = reactive([])
+
+const styles = {
+    label: "dark:text-blue-500",
+    checkbox: "my-auto ml-2 w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800"
+}
 
 const emit = defineEmits(["update:modelValue"]);
 
@@ -26,21 +41,22 @@ const isChecked = computed(() => {
 })
 
 function updateInput(event) {
-    let isChecked = event.target.checked
-    if (props.modelValue instanceof Array) {
-        let newValue = [...props.modelValue]
-        // console.log({'props.modelValue':props.modelValue})
-        if (isChecked) {
-            newValue.push(props.value)
-        } else {
-            newValue.splice(newValue.indexOf(props.value), 1)
-        }
-        // console.log('checkbox array', newValue, isChecked, props.modelValue)
-        emit('update:modelValue', newValue)
+    if (event?.length) {
     } else {
-        console.log('checkbox simple', isChecked)
+        let isChecked = event.target.checked
+        if (props.modelValue instanceof Array) {
+            let newValue = [...props.modelValue]
+            if (isChecked) {
+                newValue.push(props.value)
+            } else {
+                newValue.splice(newValue.indexOf(props.value), 1)
+            }
+            emit('update:modelValue', newValue)
+        } else {
+            console.log('checkbox simple', isChecked)
 
-        emit('update:modelValue', { target: { value: isChecked ? props.trueValue : props.falseValue }, event })
+            emit('update:modelValue', isChecked ? props.trueValue : props.falseValue)
+        }
     }
 }
 </script>
