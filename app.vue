@@ -56,7 +56,7 @@ import fakeData from "./json/fake-date";
 
 const router = useRouter();
 const route = useRoute();
-const filterState = ref({});
+const filterState = ref({ ...router.currentRoute.value.query });
 const formData = ref(fakeData);
 
 const getComponent = (cType) => {
@@ -153,6 +153,16 @@ function onClearAll() {
   setFilterState(filterState.value);
 }
 
+// Watch for route.query changes
+// watchEffect(() => {
+//   const currentQuery = router.currentRoute.value.query;
+//   console.log("Route query changed: ", currentQuery);
+//   console.log("Route query changed: ", router.currentRoute.value);
+
+//   // Perform desired logic with the updated query
+//   mapObject();
+// });
+
 window.onpopstate = function (event) {
   function urlQueryToObject(queryString) {
     queryString = queryString.slice(2); // remove /? from the
@@ -174,15 +184,11 @@ window.onpopstate = function (event) {
   }
 
   filterState.value = urlQueryToObject(event.state.current);
-  mapObject(false);
+  // console.error("onpopstate");
+  mapObject();
 };
 
-function mapObject(useQuery = true) {
-  // check if query is available
-  if (useQuery && Object.keys(route.query).length != 0) {
-    filterState.value = { ...route.query }; // copy object value or it will not work correctly
-  }
-
+function mapObject() {
   // iterating through the formDate to
   for (let x = 0; x < formData.value.length; x++) {
     const item = formData.value[x];
