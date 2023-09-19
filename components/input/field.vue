@@ -1,7 +1,7 @@
 <template>
-  <label dir="auto" :class="styles.label" :for="parent.name">{{
-    parent.label
-  }}</label>
+  <label dir="auto" :class="styles.label" :for="parent.name">
+    {{ parent.label }}
+  </label>
 
   <input
     v-if="parent.type != 'textarea'"

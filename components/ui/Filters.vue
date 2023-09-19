@@ -1,5 +1,5 @@
 <template>
-  <UiCard>
+  <UiCard class="mt-10">
     <label class="flex">
       <span class="mr-3"> Filters </span>
       <UiBadge
@@ -10,7 +10,7 @@
       </UiBadge>
     </label>
     <br />
-    <div :class="styles.box">
+    <div class="flex flex-wrap justify-end rounded-md bg-white p-3 mx-2">
       <slot></slot>
     </div>
   </UiCard>
@@ -18,8 +18,4 @@
 
 <script setup>
 const emit = defineEmits(["clearAll"]);
-
-const styles = {
-  box: "flex flex-wrap justify-end rounded-md bg-white p-3 mx-2",
-};
 </script>

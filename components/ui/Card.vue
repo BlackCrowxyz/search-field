@@ -14,5 +14,3 @@ const styles = {
 };
 if (props.border) styles.box += " border border-indigo-600 mx-n4 px-n6 my-4";
 </script>
-
-<style></style>

@@ -12,5 +12,3 @@ const props = defineProps({
   inside: { type: [Boolean], default: false },
 });
 </script>
-
-<style></style>

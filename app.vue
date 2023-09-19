@@ -1,8 +1,9 @@
 <template>
-  <div class="container mx-auto max-w-md py-10">
+  <UiContainer>
     <UiCard>
       <template v-for="(parent, i) in formData" :key="parent.name + '-' + i">
         <UiCard>
+          <!-- Parent -->
           <component
             v-if="parent?.sub"
             :is="getComponent(parent.type)"
@@ -10,6 +11,7 @@
             @update:modelValue="(e) => onChange(e, parent.name, parent.type)"
           >
             <UiCard :border="true" v-if="formData[i].value">
+              <!-- Child -->
               <component
                 v-for="(child, j) in parent.sub"
                 :key="i + '-' + j"
@@ -21,6 +23,7 @@
             </UiCard>
           </component>
 
+          <!-- Hiding nested fields (Chilren) and showind single components -->
           <component
             v-else-if="!parent?.parent"
             :is="getComponent(parent.type)"
@@ -33,29 +36,32 @@
         <div
           v-if="i + 1 != formData.length && !parent?.parent"
           class="mt-4 border"
-        ></div>
+        />
       </template>
     </UiCard>
 
-    <UiFilters class="mt-10" @clearAll="onClearAll">
-      <template v-for="(value, name) in filterState">
-        <UiBadge @click="onClear(name)">
-          {{ getLabel(name) }}: ({{ value.toString() }})
-        </UiBadge>
-      </template>
+    <!-- Filters -->
+    <UiFilters @clearAll="onClearAll">
+      <UiBadge
+        v-for="(value, name) in filterState"
+        :key="name + '-' + value"
+        @click="onClear(name)"
+      >
+        {{ getLabel(name) }}: ({{ value.toString() }})
+      </UiBadge>
     </UiFilters>
-  </div>
+  </UiContainer>
 </template>
 
 <script setup>
 // todo: for clean code just ask about components
+import fakeData from "./json/fake-date";
+
 import InputField from "./components/input/field.vue";
 import InputDropdown from "./components/input/dropdown.vue";
 import InputCheckbox from "./components/input/checkbox.vue";
-import fakeData from "./json/fake-date";
 
 const router = useRouter();
-const route = useRoute();
 const filterState = ref({ ...router.currentRoute.value.query });
 const formData = ref(fakeData);
 
@@ -73,36 +79,12 @@ const getComponent = (cType) => {
   }
 };
 
-function getLabel(name) {
+const getLabel = (name) => {
   const index = formData.value.findIndex((v) => v.name == name);
   return formData.value[index].label;
-}
+};
 
 function setFilterState(filterState) {
-  // let query = filterState
-  // make query params here:
-  // ?name1=value1&name2=value2&name3=v1,v2,v3
-  // ?name1~value1+name2~v1--v2--v3
-
-  // let query = ''
-  // Object.keys(filterState).forEach(name => {
-  //   // key, filterState[key]
-  //   if (typeof filterState[name] == Array) {
-  //     query += `${name}~`
-  //     filterState[name].forEach(item => {
-  //       query += `${item}--`
-  //     })
-  //     //TODO: remove -- from last part
-  //     query = query.slice(0, -2)
-  //     query += '+'
-  //   } else {
-  //     query += `${name}~${filterState[name]}+`
-  //   }
-  // });
-  // query = query.slice(0, -1)
-
-  console.log(JSON.parse(JSON.stringify(filterState)));
-
   router.push({
     path: "/",
     query: filterState,
@@ -152,16 +134,6 @@ function onClearAll() {
   clearItems();
   setFilterState(filterState.value);
 }
-
-// Watch for route.query changes
-// watchEffect(() => {
-//   const currentQuery = router.currentRoute.value.query;
-//   console.log("Route query changed: ", currentQuery);
-//   console.log("Route query changed: ", router.currentRoute.value);
-
-//   // Perform desired logic with the updated query
-//   mapObject();
-// });
 
 window.onpopstate = function (event) {
   function urlQueryToObject(queryString) {
@@ -220,48 +192,7 @@ function mapObject() {
       formData.value[x] = item;
     }
   }
-}
-
-// function mapObject(useQuery = true) {
-
-//   // check if query is available
-//   if (useQuery && Object.keys(route.query).length != 0) {
-//     filterState.value = { ...route.query } // copy object value or it will not work correctly
-//   }
-
-//   // iterating through the formDate to
-//   for (let x = 0; x < formData.value.length; x++) {
-//     const { name, children, parent, 'type': _type } = formData.value[x]
-
-//     // item.value = null
-//     let value = null
-//     if (name in filterState.value) {
-//       let value = filterState.value[name]
-//       if (value == 'true') value = true
-//       else if (value == 'false') value = false
-//     }
-
-//     if (children || parent) { // item is parent
-//       if (children) {
-//         formData.value[x].sub = [] // creating a sub branch for parent that has its children in 'sub'
-//         for (let i = 0; i < children.length; i++) {
-//           const childName = children[i];
-//           for (let j = 0; j < formData.value.length; j++) {
-//             const { 'name': itemName } = formData.value[j];
-//             if (childName == itemName) {
-//               formData.value[x].sub.push(formData.value[j])
-//               break
-//             }
-//           }
-//         }
-//       }
-//     } else if (_type == 'checkbox-group') {
-//       if (!item.value?.length)
-//         value = []
-//       formData.value[x] = item
-//     }
-//   }
-// }
+};
 
 mapObject();
 </script>

@@ -45,7 +45,7 @@ export default [
         "label": "انتخاب تعداد کالا",
         // "children": ["1","2"],
         // "parent"?: string,
-        "options": [{ value: 100, title: 1 }, { value: 2, title: 200 }, { value: 3, title: 300 }],
+        "options": [{ value: 1, title: 100 }, { value: 2, title: 200 }, { value: 3, title: 300 }],
     },
     {
         "type": "checkbox",

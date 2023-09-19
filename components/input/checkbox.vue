@@ -1,8 +1,9 @@
 <template>
+  <!-- simple checkbox -->
   <div v-if="!parent?.options" class="flex justify-end items-start">
-    <label :class="styles.label" :for="parent?.name || parent?.title">{{
-      parent?.label || parent?.title
-    }}</label>
+    <label :class="styles.label" :for="parent?.name || parent?.title">
+      {{ parent?.label || parent?.title }}
+    </label>
     <input
       :class="styles.checkbox"
       type="checkbox"
@@ -12,6 +13,7 @@
       @change="updateInput"
     />
   </div>
+  <!-- checkbox-group -->
   <template v-else>
     <label :for="parent.name">{{ parent.label }}</label>
     <div v-for="(option, j) in parent.options" :key="option.title + '-' + j">
@@ -29,13 +31,13 @@
 <script setup>
 const props = defineProps({
   parent: Object,
-  modelValue: { type: [Array, Boolean] },
+  modelValue: { type: [Array, Boolean, Number, String] },
   value: { type: [Boolean, Number, String, Object] },
   trueValue: { default: true },
   falseValue: { default: false },
 });
 
-const groupCheckbox = reactive([]);
+const emit = defineEmits(["update:modelValue"]);
 
 const styles = {
   label: "dark:text-blue-500",
@@ -43,13 +45,10 @@ const styles = {
     "my-auto ml-2 w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800",
 };
 
-const emit = defineEmits(["update:modelValue"]);
-
 const isChecked = computed(() => {
   if (props.modelValue instanceof Array) {
     return props.modelValue.includes(props.value);
   }
-  // Note that `true-value` and `false-value` are camelCase in the JS
   return props.modelValue === props.trueValue;
 });
 
@@ -57,6 +56,7 @@ function updateInput(event) {
   if (event?.length) {
   } else {
     let isChecked = event.target.checked;
+    // checkbox-group
     if (props.modelValue instanceof Array) {
       let newValue = [...props.modelValue];
       if (isChecked) {
@@ -66,6 +66,7 @@ function updateInput(event) {
       }
       emit("update:modelValue", newValue);
     } else {
+      // simple checkbox
       emit("update:modelValue", isChecked ? props.trueValue : props.falseValue);
     }
   }
