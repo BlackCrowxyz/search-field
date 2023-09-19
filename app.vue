@@ -1,31 +1,39 @@
 <template>
   <div class="container mx-auto max-w-md py-10">
     <UiCard>
-
       <template v-for="(parent, i) in formData" :key="parent.name + '-' + i">
-
         <UiCard>
-          <component v-if="parent?.sub" :is="getComponent(parent.type)"
+          <component
+            v-if="parent?.sub"
+            :is="getComponent(parent.type)"
             v-bind="{ parent: parent, modelValue: formData[i].value }"
-            @update:modelValue="e => onChange(e, parent.name, parent.type)">
-
+            @update:modelValue="(e) => onChange(e, parent.name, parent.type)"
+          >
             <UiCard :border="true" v-if="formData[i].value">
-              <component v-for="(child, j) in parent.sub" :key="i + '-' + j" :is="getComponent(child.type)"
+              <component
+                v-for="(child, j) in parent.sub"
+                :key="i + '-' + j"
+                :is="getComponent(child.type)"
                 v-bind="{ parent: child, modelValue: formData[i].sub[j].value }"
-                @update:modelValue="e => onChange(e, child.name, child.type)">
+                @update:modelValue="(e) => onChange(e, child.name, child.type)"
+              >
               </component>
             </UiCard>
-
           </component>
 
-          <component v-else-if="!parent?.parent" :is="getComponent(parent.type)"
+          <component
+            v-else-if="!parent?.parent"
+            :is="getComponent(parent.type)"
             v-bind="{ parent: parent, modelValue: formData[i].value }"
-            @update:modelValue="e => onChange(e, parent.name, parent.type)">
+            @update:modelValue="(e) => onChange(e, parent.name, parent.type)"
+          >
           </component>
         </UiCard>
 
-        <div v-if="i + 1 != formData.length && !parent?.parent" class="mt-4 border"></div>
-
+        <div
+          v-if="i + 1 != formData.length && !parent?.parent"
+          class="mt-4 border"
+        ></div>
       </template>
     </UiCard>
 
@@ -41,35 +49,33 @@
 
 <script setup>
 // todo: for clean code just ask about components
-import InputField from './components/input/field.vue';
-import InputDropdown from './components/input/dropdown.vue';
-import InputCheckbox from './components/input/checkbox.vue';
-import fakeData from './json/fake-date'
+import InputField from "./components/input/field.vue";
+import InputDropdown from "./components/input/dropdown.vue";
+import InputCheckbox from "./components/input/checkbox.vue";
+import fakeData from "./json/fake-date";
 
-const router = useRouter()
-const route = useRoute()
-const filterState = ref({})
-const formData = ref(fakeData)
-
-
+const router = useRouter();
+const route = useRoute();
+const filterState = ref({});
+const formData = ref(fakeData);
 
 const getComponent = (cType) => {
   switch (cType) {
-    case 'text':
-    case 'number':
-    case 'textarea':
-      return InputField
-    case 'dropdown':
-      return InputDropdown
-    case 'checkbox':
-    case 'checkbox-group':
-      return InputCheckbox
+    case "text":
+    case "number":
+    case "textarea":
+      return InputField;
+    case "dropdown":
+      return InputDropdown;
+    case "checkbox":
+    case "checkbox-group":
+      return InputCheckbox;
   }
-}
+};
 
 function getLabel(name) {
-  const index = formData.value.findIndex(v => v.name == name)
-  return formData.value[index].label
+  const index = formData.value.findIndex((v) => v.name == name);
+  return formData.value[index].label;
 }
 
 function setFilterState(filterState) {
@@ -95,64 +101,61 @@ function setFilterState(filterState) {
   // });
   // query = query.slice(0, -1)
 
-  console.log(JSON.parse(JSON.stringify(filterState)))
+  console.log(JSON.parse(JSON.stringify(filterState)));
 
   router.push({
-    path: '/',
-    query: filterState
-  })
+    path: "/",
+    query: filterState,
+  });
 }
 
 function onChange(e, name, type) {
-  if (e) filterState.value[name] = e
+  if (e) filterState.value[name] = e;
   else {
-    delete filterState.value[name]
-    clearItems(name)
+    delete filterState.value[name];
+    clearItems(name);
   }
 
   for (let x = 0; x < formData.value.length; x++) {
-    const item = formData.value[x]
+    const item = formData.value[x];
     if (name == item.name) {
-      const v = e?.target ? e.target.value : e
-      formData.value[x] = { ...item, value: v }
-      break
+      const v = e?.target ? e.target.value : e;
+      formData.value[x] = { ...item, value: v };
+      break;
     }
   }
 
-  setFilterState(filterState.value)
+  setFilterState(filterState.value);
 }
 
-function clearItems(name = 'all') {
+function clearItems(name = "all") {
   for (let x = 0; x < formData.value.length; x++) {
-    const item = formData.value[x]
-    if (name == 'all') {
-      formData.value[x].value = item.type == 'checkbox-group' ? [] : null;
+    const item = formData.value[x];
+    if (name == "all") {
+      formData.value[x].value = item.type == "checkbox-group" ? [] : null;
     } else {
       if (name == item.name || name == item.parent) {
-        formData.value[x].value = item.type == 'checkbox-group' ? [] : null;
+        formData.value[x].value = item.type == "checkbox-group" ? [] : null;
       }
     }
   }
 }
 
 function onClear(name) {
-  delete filterState.value[name]
-  clearItems(name)
-  setFilterState(filterState.value)
+  delete filterState.value[name];
+  clearItems(name);
+  setFilterState(filterState.value);
 }
 
 function onClearAll() {
-  filterState.value = []
-  clearItems()
-  setFilterState(filterState.value)
+  filterState.value = [];
+  clearItems();
+  setFilterState(filterState.value);
 }
 
-
-
 window.onpopstate = function (event) {
-
   function urlQueryToObject(queryString) {
-    queryString = queryString.slice(2) // remove /? from the
+    queryString = queryString.slice(2); // remove /? from the
     const params = new URLSearchParams(queryString);
     const result = {};
 
@@ -170,49 +173,89 @@ window.onpopstate = function (event) {
     return result;
   }
 
-  filterState.value = urlQueryToObject(event.state.current)
-  mapObject(false)
+  filterState.value = urlQueryToObject(event.state.current);
+  mapObject(false);
 };
 
 function mapObject(useQuery = true) {
-
   // check if query is available
   if (useQuery && Object.keys(route.query).length != 0) {
-    filterState.value = { ...route.query } // copy object value or it will not work correctly
+    filterState.value = { ...route.query }; // copy object value or it will not work correctly
   }
 
-  // iterating through the formDate to 
+  // iterating through the formDate to
   for (let x = 0; x < formData.value.length; x++) {
-    const item = formData.value[x]
-    
-    item.value = null
+    const item = formData.value[x];
+
+    item.value = null;
     if (item.name in filterState.value) {
-      let v = filterState.value[item.name]
-      if (v == 'true') v = true
-      else if (v == 'false') v = false
-      item.value = v
+      let v = filterState.value[item.name];
+      if (v == "true") v = true;
+      else if (v == "false") v = false;
+      item.value = v;
     }
 
-    if (item?.children || item?.parent) { // item is parent
+    if (item?.children || item?.parent) {
+      // item is parent
       if (item?.children) {
-        formData.value[x] = { ...item, sub: [] } // pushing parent
+        formData.value[x] = { ...item, sub: [] }; // pushing parent
         for (let i = 0; i < item.children.length; i++) {
           const childName = item.children[i];
           for (let j = 0; j < formData.value.length; j++) {
             const data = formData.value[j];
             if (childName == data.name) {
-              formData.value[x].sub.push(data)
+              formData.value[x].sub.push(data);
             }
           }
         }
       }
-    } else if (item.type == 'checkbox-group') {
-      if (!item.value?.length)
-        item.value = []
-      formData.value[x] = item
+    } else if (item.type == "checkbox-group") {
+      if (!item.value?.length) item.value = [];
+      formData.value[x] = item;
     }
   }
 }
 
-mapObject()
+// function mapObject(useQuery = true) {
+
+//   // check if query is available
+//   if (useQuery && Object.keys(route.query).length != 0) {
+//     filterState.value = { ...route.query } // copy object value or it will not work correctly
+//   }
+
+//   // iterating through the formDate to
+//   for (let x = 0; x < formData.value.length; x++) {
+//     const { name, children, parent, 'type': _type } = formData.value[x]
+
+//     // item.value = null
+//     let value = null
+//     if (name in filterState.value) {
+//       let value = filterState.value[name]
+//       if (value == 'true') value = true
+//       else if (value == 'false') value = false
+//     }
+
+//     if (children || parent) { // item is parent
+//       if (children) {
+//         formData.value[x].sub = [] // creating a sub branch for parent that has its children in 'sub'
+//         for (let i = 0; i < children.length; i++) {
+//           const childName = children[i];
+//           for (let j = 0; j < formData.value.length; j++) {
+//             const { 'name': itemName } = formData.value[j];
+//             if (childName == itemName) {
+//               formData.value[x].sub.push(formData.value[j])
+//               break
+//             }
+//           }
+//         }
+//       }
+//     } else if (_type == 'checkbox-group') {
+//       if (!item.value?.length)
+//         value = []
+//       formData.value[x] = item
+//     }
+//   }
+// }
+
+mapObject();
 </script>
