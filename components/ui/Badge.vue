@@ -7,7 +7,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const props = defineProps({
   color: { type: String, default: "bg-yellow-400 hover:bg-yellow-500" },
 });
@@ -17,5 +17,4 @@ const styles = reactive({
 });
 
 styles.tab += " " + props.color;
-
 </script>

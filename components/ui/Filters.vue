@@ -16,6 +16,6 @@
   </UiCard>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const emit = defineEmits(["clearAll"]);
 </script>

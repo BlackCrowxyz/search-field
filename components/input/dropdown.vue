@@ -22,15 +22,15 @@
   <slot></slot>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const props = defineProps({
-  parent: Object,
+  parent: { type: Object, required: true },
   modelValue: [String, Number],
 });
 
 const emit = defineEmits(["update:modelValue"]);
 
-const styles = {
+const styles: { [key: string]: string } = {
   label:
     "mb-2 mx-2 text-sm font-medium text-gray-900 dark:text-white min-w-[70px]",
   select:

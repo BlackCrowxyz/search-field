@@ -28,9 +28,9 @@
   <slot></slot>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const props = defineProps({
-  parent: Object,
+  parent: { type: Object, required: true },
   modelValue: { type: [Array, Boolean, Number, String] },
   value: { type: [Boolean, Number, String, Object] },
   trueValue: { default: true },
@@ -45,7 +45,7 @@ const styles = {
     "my-auto ml-2 w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800",
 };
 
-const isChecked = computed(() => {
+const isChecked: ComputedRef<boolean> = computed(() => {
   if (props.modelValue instanceof Array) {
     return props.modelValue.includes(props.value);
   }
