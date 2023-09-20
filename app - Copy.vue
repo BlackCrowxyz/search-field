@@ -43,7 +43,7 @@
     <UiFilters class="mt-10" @clearAll="onClearAll">
       <template v-for="(value, name) in filterState">
         <UiBadge @click="onClear(name)">
-          {{ getFieldLabel(name) }}: ({{ value.toString() }})
+          {{ getLabel(name) }}: ({{ value.toString() }})
         </UiBadge>
       </template>
     </UiFilters>
@@ -61,6 +61,11 @@ const route = useRoute();
 const filterState = ref({});
 const form = ref(fakeData);
 
+/**
+ * Description
+ * @param {string} cType
+ * @returns {any}
+ */
 function getComponent(cType: string) {
   switch (cType) {
     case "text":
@@ -75,29 +80,58 @@ function getComponent(cType: string) {
   }
 }
 
-function getFieldLabel(name: string) {
+/**
+ * Description
+ * @param {string} name
+ * @returns {any}
+ */
+function getLabel(name: string) {
   const index = form.value.findIndex((v) => v.name == name);
   return form.value[index].label;
 }
 
-function onChange(eventValue: any, name: string, type: string) {
-  setFilterState(eventValue, name);
-  setUrl();
-}
+/**
+ * Description
+ * @param {any} e:{target:{value:any}}
+ * @param {string} name
+ * @param {string} type
+ * @returns {any}
+ */
+function onChange(e: { target: { value: any } }, name: string, type: string) {
+  if (e) {
+    filterState.value[name] = e;
+  } else {
+    delete filterState.value[name];
+    clearItems(name);
+  }
 
-function returnValue(type: string) {
-  return type == "checkbox-group" ? [] : null;
-}
-
-//TODO : not optimized
-function clearFieldsByName(name = undefined) {
+  const v = e?.target ? e.target.value : e;
   for (let x = 0; x < form.value.length; x++) {
     const field = form.value[x];
-    if (!name) {
-      form.value[x].value = returnValue(field.type);
+    if (name == field.name) {
+      form.value[x] = { ...field, value: v };
+      break;
+    }
+  }
+
+  setFilterState(filterState.value);
+}
+
+/**
+ * Description
+ * @param {any} name="all"
+ * @returns {any}
+ */
+function clearItems(name = "all") {
+  for (let x = 0; x < form.value.length; x++) {
+    const field = form.value[x];
+    if (name == "all") {
+      form.value[x].value = field.type == "checkbox-group" ? [] : null;
     } else {
       if (name == field.name) {
-        form.value[x].value = returnValue(field.type);
+        form.value[x].value = field.type == "checkbox-group" ? [] : null;
+        // when child is removed,
+        //field.parent
         for (let y = 0; y < form.value.length; y++) {
           if (field.parent == form.value[y].name) {
             for (let k = 0; k < Object.keys(form.value[y].sub).length; k++) {
@@ -113,32 +147,50 @@ function clearFieldsByName(name = undefined) {
           }
         }
       } else if (name == field.parent) {
-        form.value[x].value = returnValue(field.type);
+        form.value[x].value = field.type == "checkbox-group" ? [] : null;
         delete filterState.value[field.name];
       }
     }
   }
 }
 
+/**
+ * Description
+ * @param {string} name
+ * @returns {any}
+ */
 function onClear(name: string) {
   delete filterState.value[name];
-  clearFieldsByName(name);
-  setUrl();
+  clearItems(name);
+  setFilterState(filterState.value);
 }
 
+/**
+ * Description
+ * @returns {any}
+ */
 function onClearAll() {
   filterState.value = {};
-  clearFieldsByName();
-  setUrl();
+  clearItems();
+  setFilterState(filterState.value);
 }
 
-// Handling back and forward in browser
+/**
+ * Description
+ * @param {any} event
+ * @returns {any}
+ */
 window.onpopstate = function (event) {
-  filterState.value = getFiltersFromQuery();
-  mapFilterToForm();
+  filterState.value = getConvertedQuery();
+  mapObject();
 };
 
-function setQuery(filterState: { [key: string]: string | number }) {
+/**
+ * Description
+ * @param {any} filterState:{[key:string]:string|number}
+ * @returns {any}
+ */
+function createQuery(filterState: { [key: string]: string | number }) {
   // example:
   // ?name1=value1&name2=value2&name3=v1,v2,v3
   // ?name1~value1+name2~v1--v2--v3
@@ -162,32 +214,21 @@ function setQuery(filterState: { [key: string]: string | number }) {
   return query;
 }
 
-function setFilterState(eventValue: boolean | number | string, name: string) {
-  if (eventValue) {
-    // inserting value
-    filterState.value[name] = eventValue;
-
-    // updating field value when parent has children
-    for (let index = 0; index < form.value.length; index++) {
-      const field = form.value[index];
-      if (name == field.name) {
-        form.value[index] = { ...field, value: eventValue };
-        break;
-      }
-    }
-  } else {
-    // removing value
-    delete filterState.value[name];
-    clearFieldsByName(name);
-  }
-}
-
-function setUrl() {
-  const query = setQuery(filterState.value);
+/**
+ * Description
+ * @param {{}} filterState
+ * @returns {any}
+ */
+function setFilterState(filterState: {}) {
+  const query = createQuery(filterState);
   router.push(encodeURI("/?" + query));
 }
 
-function getFiltersFromQuery() {
+/**
+ * Description
+ * @returns {any}
+ */
+function getConvertedQuery() {
   // getting query params
   let queryString: string = route.fullPath.replace("/", "").replace("?", "");
 
@@ -214,8 +255,14 @@ function getFiltersFromQuery() {
   return result;
 }
 
-function mapFilterToForm() {
-  filterState.value = getFiltersFromQuery();
+/**
+ * Description
+ * @returns {any}
+ *
+ *
+ */
+function mapObject() {
+  filterState.value = getConvertedQuery();
 
   // iterating through the formDate to
   for (let index = 0; index < form.value.length; index++) {
@@ -230,12 +277,10 @@ function mapFilterToForm() {
         // Add subtree to parent
         form.value[index] = { ...field, sub: [] };
 
-        // TODO: these two for are not optimized
         // iterating through children to push children from origina form  to make subtree
         for (let i = 0; i < field.children.length; i++) {
           const childName = field.children[i];
-
-          // populating subtree with its children
+          
           for (let j = 0; j < form.value.length; j++) {
             const data = form.value[j];
             if (childName == data.name) {
@@ -251,5 +296,5 @@ function mapFilterToForm() {
   }
 }
 
-mapFilterToForm();
+mapObject();
 </script>
