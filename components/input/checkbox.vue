@@ -53,22 +53,19 @@ const isChecked: ComputedRef<boolean> = computed(() => {
 });
 
 function updateInput(event) {
-  if (event?.length) {
-  } else {
-    let isChecked = event.target.checked;
-    // checkbox-group
-    if (props.modelValue instanceof Array) {
-      let newValue = [...props.modelValue];
-      if (isChecked) {
-        newValue.push(props.value);
-      } else {
-        newValue.splice(newValue.indexOf(props.value), 1);
-      }
-      emit("update:modelValue", newValue);
+  let isChecked = event.target.checked;
+  // checkbox-group
+  if (props.modelValue instanceof Array) {
+    let newValue = [...props.modelValue];
+    if (isChecked) {
+      newValue.push(props.value);
     } else {
-      // simple checkbox
-      emit("update:modelValue", isChecked ? props.trueValue : props.falseValue);
+      newValue.splice(newValue.indexOf(props.value), 1);
     }
+    emit("update:modelValue", newValue);
+  } else {
+    // simple checkbox
+    emit("update:modelValue", isChecked ? props.trueValue : props.falseValue);
   }
 }
 </script>

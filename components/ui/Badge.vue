@@ -1,10 +1,10 @@
 <template>
-  <div :class="styles.tab">
-    <slot></slot>
-    <button>
-      <IconsClose width="20px" class="pl-1" />
-    </button>
-  </div>
+    <div :class="styles.tab">
+      <slot></slot>
+      <button>
+        <IconsClose width="20px" class="pl-1" />
+      </button>
+    </div>
 </template>
 
 <script setup lang="ts">
